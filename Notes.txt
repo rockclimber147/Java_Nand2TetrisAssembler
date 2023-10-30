@@ -1,0 +1,128 @@
+------------------------------------------------------------------------------------------------------------------------
+                                         TRANSLATING A INSTRUCTIONS
+------------------------------------------------------------------------------------------------------------------------
+
+@xxx -> 0vvvvvvvvvvvvvvv
+where:
+0      -> op code
+vv...v -> xxx value in binary (15-bit)
+
+
+------------------------------------------------------------------------------------------------------------------------
+                                         TRANSLATING C INSTRUCTIONS
+------------------------------------------------------------------------------------------------------------------------
+
+Symbolic syntax: dest = comp;jump
+Binary syntax:   111accccccdddjjj
+
+where:
+a: compute with A or M register
+c1-c6: ALU control bits
+d1-d3: Destination to store value
+j1-j3: Jump Conditions
+
+
+ COMP       | c c c c c c
+|a==0 |a==1 | 1 2 3 4 5 6
+|_____|_____|____________
+|  0  |     | 1 0 1 0 1 0
+|  1  |     | 1 1 1 1 1 1
+| -1  |     | 1 1 1 0 1 0
+|  D  |     | 0 0 1 1 0 0
+|  A  |  M  | 1 1 0 0 0 0
+| !D  |     | 0 0 1 1 0 1
+| !A  | !M  | 1 1 0 0 0 1
+| -D  |     | 0 0 1 1 1 1
+| -A  | -M  | 1 1 0 0 1 1
+| D+1 |     | 0 1 1 1 1 1
+| A+1 | M+1 | 1 1 0 1 1 1
+| D-1 |     | 0 0 1 1 1 0
+| A-1 | M-1 | 1 1 0 0 1 0
+| D+A | D+M | 0 0 0 0 1 0
+| D-A | D-M | 0 1 0 0 1 1
+| A-D | M-D | 0 0 0 1 1 1
+| D&A | D&M | 0 0 0 0 0 0
+| D|A | D|M | 0 1 0 1 0 1
+-------------------------
+
+DEST    d d d
+        1 2 3
+___________________________________________________
+|null | 0 0 0 | the value is not stored
+|  M  | 0 0 1 | RAM[A]
+|  D  | 0 1 0 | D register
+| DM  | 0 1 1 | D register and RAM[A]
+|  A  | 1 0 0 | A register
+| AM  | 1 0 1 | A register and RAM[A]
+| AD  | 1 1 0 | A register and D register
+| ADM | 1 1 1 | A register, D register, and RAM[A]
+
+JUMP  j j j
+      1 2 3
+_________________________________
+null| 0 0 0 | no jump
+JGT | 0 0 1 | if comp > 0 jump
+JEQ | 0 1 0 | if comp = 0 jump
+JGE | 0 1 1 | if comp ≥ 0 jump
+JLT | 1 0 0 | if comp < 0 jump
+JNE | 1 0 1 | if comp ≠ 0 jump
+JLE | 1 1 0 | if comp ≤ 0 jump
+JMP | 1 1 1 | Unconditional jump
+
+
+------------------------------------------------------------------------------------------------------------------------
+                                         TRANSLATING SYMBOLS
+------------------------------------------------------------------------------------------------------------------------
+
+-------------------------------------------PREDEFINED SYMBOLS-----------------------------------------------------------
+
+symbol    | mapping
+R0 to R15 | RAM[0] to RAM[15]
+SCREEN    | RAM[16384]
+KBD       | RAM[24576]
+SP        | RAM[0]
+LCL       | RAM[1]
+ARG       | RAM[2]
+THIS      | RAM[3]
+THAT      | RAM[4]
+
+there are 23 predefined symbols in all
+
+@symbol -> @N where N is RAM[N] in symbol mapping table
+
+----------------------------------------------JUMP LABELS---------------------------------------------------------------
+
+Symbolic representation: (dest)
+
+to be translated to the memory location holding the next instruction after the label.
+
+e.g.
+
+line | op
+1       1   @10
+2       2   A=M
+3       // comment
+4       3   D=A
+5       4   @0
+6       5   D;JMP
+7       // comment
+8           (LABEL1)
+9       6   A=M
+10      7   D=M
+11          (LABEL2)
+12      8   M=A
+
+LabelSymbol   value
+LABEL1     -> 6
+LABEL2     -> 8
+
+translating:
+@LABEL1    -> @6
+
+
+------------------------------------------------VARIABLE SYMBOLS--------------------------------------------------------
+
+Symbols that are not predefined or jump labels are considered variables. If a variable is seen for the first time, it is
+assigned to a register starting at RAM[16].
+
+Variables are defined on the second pass after the symbol table has been fully populated

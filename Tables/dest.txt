@@ -1,0 +1,8 @@
+null | 0 0 0 | the value is not stored
+  M  | 0 0 1 | RAM[A]
+  D  | 0 1 0 | D register
+ DM  | 0 1 1 | D register and RAM[A]
+  A  | 1 0 0 | A register
+ AM  | 1 0 1 | A register and RAM[A]
+ AD  | 1 1 0 | A register and D register
+ ADM | 1 1 1 | A register, D register, and RAM[A]

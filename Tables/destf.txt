@@ -1,0 +1,8 @@
+dTable.put("null", "000");
+dTable.put("M", "001");
+dTable.put("D", "010");
+dTable.put("DM", "011");
+dTable.put("A", "100");
+dTable.put("AM", "101");
+dTable.put("AD", "110");
+dTable.put("ADM", "111");

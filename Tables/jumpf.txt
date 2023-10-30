@@ -1,0 +1,8 @@
+jTable.put("null", "000");
+jTable.put("JGT", "001");
+jTable.put("JEQ", "010");
+jTable.put("JGE", "011");
+jTable.put("JLT", "100");
+jTable.put("JNE", "101");
+jTable.put("JLE", "110");
+jTable.put("JMP", "111");
